@@ -23,12 +23,13 @@ from rich.text import Text
 from rich.theme import Theme
 
 
-# Set up a strictly RED theme
+# Set up a sturdy, professional theme
 custom_theme = Theme({
-    "info": "bold red",
+    "info": "bold cyan",
     "warning": "bold yellow",
     "danger": "bold red",
     "success": "bold green",
+    "highlight": "bold magenta"
 })
 console = Console(theme=custom_theme)
 
@@ -37,36 +38,57 @@ def clear_screen():
 
 def print_header():
     clear_screen()
-    header_text = Text()
-    header_text.append("🔥 GEMMA 4 E4B MODAL DEPLOYER 🔥\n", style="bold red")
-    header_text.append("Built by Mindzed Technologies (developer - zywfo)\n", style="italic red")
     
-    console.print(Panel(header_text, border_style="red", expand=False))
+    openmodal_ascii = """[bold cyan]
+  ___                  __  __         _       _ 
+ / _ \ _ __   ___ _ __|  \/  | ___   | | __ _| |
+| | | | '_ \ / _ \ '_ \ |\/| |/ _ \  | |/ _` | |
+| |_| | |_) |  __/ | | | |  | | (_) | | | (_| | |
+ \___/| .__/ \___|_| |_|_|  |_|\___/  |_|\__,_|_|
+      |_|                                        
+[/bold cyan]"""
+
+    mindzed_ascii = """[bold red]
+ __  __ _           _ ______        _ 
+|  \/  (_)         | |___  /       | |
+| \  / |_ _ __   __| |  / / ___  __| |
+| |\/| | | '_ \ / _` | / / / _ \/ _` |
+| |  | | | | | | (_| |/ /_|  __/ (_| |
+|_|  |_|_|_| |_|\__,_/___\_\___|\__,_|
+[/bold red]"""
+
+    header_text = Text.from_markup(f"{openmodal_ascii}\n{mindzed_ascii}\n[bold white]Serverless OpenAI-Compatible Endpoints[/bold white]\n[italic dim]Powered by Gemma 4 E4B & Modal[/italic dim]")
+    
+    console.print(Panel(header_text, border_style="cyan", padding=(1, 4), title="[bold white]INITIALIZATION[/bold white]"))
+
 
 def generate_key(length=16):
     alphabet = string.ascii_letters + string.digits
     return "ZN_" + "".join(secrets.choice(alphabet) for i in range(length - 3))
 
 def get_api_key():
-    console.print("\n[info]We need an API Key to secure your OpenAI-compatible endpoint.[/info]")
-    choice = Confirm.ask("[red]Do you want to auto-generate a secure cryptographic key?[/red]")
+    console.print("\n[bold white]▶ SECURITY CONFIGURATION[/bold white]")
+    console.print("[info]An API Key is required to secure your endpoint from unauthorized access.[/info]\n")
+    
+    choice = Confirm.ask("[bold cyan]? Do you want to auto-generate a secure cryptographic key?[/bold cyan]")
     
     if choice:
         key = generate_key()
-        console.print(f"\n[success]Generated Key:[/success] [bold white]{key}[/bold white]")
+        console.print(f"\n[success]✔ Generated Secure Key:[/success] [bold white]{key}[/bold white]")
         return key
     else:
         while True:
-            key = Prompt.ask("[red]Enter your custom API Key (max 16 chars)[/red]")
+            key = Prompt.ask("\n[bold cyan]➔ Enter your custom API Key (max 16 chars)[/bold cyan]")
             if len(key) > 16:
-                console.print("[warning]Key is too long! Maximum 16 characters.[/warning]")
+                console.print("[warning]⚠ Key is too long! Maximum 16 characters.[/warning]")
             elif len(key) == 0:
-                console.print("[warning]Key cannot be empty.[/warning]")
+                console.print("[warning]⚠ Key cannot be empty.[/warning]")
             else:
                 return key
 
 def setup_modal_secret(api_key):
-    console.print("\n[info]=> Injecting your API Key into Modal Secrets...[/info]")
+    console.print("\n[bold white]▶ MODAL VAULT INJECTION[/bold white]")
+    console.print("[info]Injecting API key into remote Modal Secrets...[/info]")
     try:
         # Run the modal cli command to create a secret
         result = subprocess.run(
@@ -85,11 +107,12 @@ def setup_modal_secret(api_key):
         sys.exit(1)
 
 def deploy_to_modal():
-    console.print("\n[info]=> Initiating Modal Deployment (this may take a few minutes if cold building)...[/info]")
+    console.print("\n[bold white]▶ REMOTE DEPLOYMENT[/bold white]")
+    console.print("[info]Initiating deployment to Modal infrastructure...[/info]")
+    console.print("[italic dim](This may take a few minutes during initial cold builds)[/italic dim]\n")
     
     base_url = None
     
-    # We use Popen to stream the output live to the user, while capturing it to extract the URL
     process = subprocess.Popen(
         ["modal", "deploy", "deploy.py"],
         stdout=subprocess.PIPE,
@@ -99,11 +122,10 @@ def deploy_to_modal():
     )
     
     for line in iter(process.stdout.readline, ''):
-        # Print the line to the terminal so the user sees the live progress
-        sys.stdout.write(line)
+        # Add a subtle prefix to stream output to make it look boxed/sturdy
+        sys.stdout.write(f"  │ {line}")
         sys.stdout.flush()
         
-        # Regex to catch the modal.run URL
         match = re.search(r'(https://[a-zA-Z0-9-]+\.modal\.run)', line)
         if match:
             base_url = match.group(1)
@@ -111,30 +133,29 @@ def deploy_to_modal():
     process.wait()
     
     if process.returncode != 0:
-        console.print("\n[danger]Deployment failed! Please check the logs above.[/danger]")
+        console.print("\n[danger]✖ Deployment failed. Check the logs above.[/danger]")
         sys.exit(1)
         
     return base_url
 
 def ensure_modal_auth():
-    console.print("\n[info]=> Checking Modal authentication...[/info]")
+    console.print("\n[bold white]▶ AUTHENTICATION[/bold white]")
+    console.print("[info]Checking Modal profile...[/info]")
     
-    # Check if modal is authenticated by trying to read the active profile
     result = subprocess.run(["modal", "profile", "current"], capture_output=True, text=True)
     if result.returncode != 0:
-        console.print("[warning]You are not authenticated with Modal yet.[/warning]")
-        console.print("[info]Opening browser to authenticate... Please log in and authorize the CLI.[/info]")
+        console.print("[warning]⚠ No active Modal session found.[/warning]")
+        console.print("[info]Opening browser to authenticate... Please authorize the CLI.[/info]")
         
-        # This will open the browser and block until the user authorizes
         auth_result = subprocess.run(["modal", "token", "new"])
         
         if auth_result.returncode != 0:
-            console.print("[danger]Authentication failed or was cancelled. Exiting.[/danger]")
+            console.print("[danger]✖ Authentication failed or cancelled.[/danger]")
             sys.exit(1)
             
-        console.print("[success]Successfully authenticated with Modal![/success]")
+        console.print("[success]✔ Successfully authenticated![/success]")
     else:
-        console.print("[success]Already authenticated with Modal![/success]")
+        console.print("[success]✔ Session verified.[/success]")
 
 
 def main():
@@ -149,21 +170,22 @@ def main():
         console.print("\n")
         
         success_text = Text()
-        success_text.append("🚀 DEPLOYMENT SUCCESSFUL! 🚀\n\n", style="bold green")
-        success_text.append("Your personal OpenAI-compatible endpoint is live.\n\n", style="white")
-        success_text.append(f"Base URL: {base_url}/v1\n", style="bold cyan")
-        success_text.append(f"API Key:  {api_key}\n\n", style="bold cyan")
+        success_text.append("Your OpenModal API is live and fully OpenAI-compatible.\n\n", style="white")
+        success_text.append("BASE URL: ", style="bold cyan")
+        success_text.append(f"{base_url}/v1\n", style="bold white")
+        success_text.append("API KEY:  ", style="bold cyan")
+        success_text.append(f"{api_key}\n\n", style="bold white")
         
-        success_text.append("Test it instantly with cURL:\n", style="yellow")
+        success_text.append("CURL TEST COMMAND:\n", style="bold yellow")
         success_text.append(f"""curl -X POST "{base_url}/v1/chat/completions" \\
   -H "Authorization: Bearer {api_key}" \\
   -H "Content-Type: application/json" \\
   -d '{{"model": "gemma-4", "messages": [{{"role": "user", "content": "Hi, tell me a joke."}}]}}'
-""", style="white")
+""", style="italic dim white")
 
-        console.print(Panel(success_text, border_style="green", title="[bold green]Ready for Integration[/bold green]"))
+        console.print(Panel(success_text, border_style="green", title="[bold green]✔ DEPLOYMENT SUCCESSFUL[/bold green]", padding=(1, 2)))
     else:
-        console.print("\n[warning]Deployment succeeded, but we couldn't automatically parse the URL. Check the logs above![/warning]")
+        console.print("\n[warning]⚠ Deployment succeeded, but the URL could not be parsed automatically.[/warning]")
 
 if __name__ == "__main__":
     main()
