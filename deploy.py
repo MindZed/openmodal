@@ -24,35 +24,35 @@ INSTALLED_MODELS = os.environ.get("INSTALLED_MODELS", "gemma-4").split(",")
 
 if "gemma-4" in INSTALLED_MODELS:
     gemma_image = base_image.run_commands(
-        "huggingface-cli download unsloth/gemma-4-E4B-it-GGUF gemma-4-E4B-it-Q3_K_M.gguf --local-dir /model"
+        "hf download unsloth/gemma-4-E4B-it-GGUF gemma-4-E4B-it-Q3_K_M.gguf --local-dir /model"
     )
 else:
     gemma_image = base_image
 
 if "llama-3.1" in INSTALLED_MODELS:
     llama_image = base_image.run_commands(
-        "huggingface-cli download bartowski/Meta-Llama-3.1-8B-Instruct-GGUF Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf --local-dir /model"
+        "hf download bartowski/Meta-Llama-3.1-8B-Instruct-GGUF Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf --local-dir /model"
     )
 else:
     llama_image = base_image
 
 if "qwen-3" in INSTALLED_MODELS:
     qwen_image = base_image.run_commands(
-        "huggingface-cli download bartowski/Qwen2.5-7B-Instruct-GGUF Qwen2.5-7B-Instruct-Q4_K_M.gguf --local-dir /model"
+        "hf download bartowski/Qwen2.5-7B-Instruct-GGUF Qwen2.5-7B-Instruct-Q4_K_M.gguf --local-dir /model"
     )
 else:
     qwen_image = base_image
 
 if "phi-4" in INSTALLED_MODELS:
     phi_image = base_image.run_commands(
-        "huggingface-cli download bartowski/microsoft_Phi-4-mini-instruct-GGUF microsoft_Phi-4-mini-instruct-Q4_K_M.gguf --local-dir /model"
+        "hf download bartowski/microsoft_Phi-4-mini-instruct-GGUF microsoft_Phi-4-mini-instruct-Q4_K_M.gguf --local-dir /model"
     )
 else:
     phi_image = base_image
 
 if "deepseek-r1" in INSTALLED_MODELS:
     deepseek_image = base_image.run_commands(
-        "huggingface-cli download unsloth/DeepSeek-R1-Distill-Qwen-14B-GGUF DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf --local-dir /model"
+        "hf download unsloth/DeepSeek-R1-Distill-Qwen-14B-GGUF DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf --local-dir /model"
     )
 else:
     deepseek_image = base_image
