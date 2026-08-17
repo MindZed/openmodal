@@ -150,7 +150,7 @@ class DeepSeekWorker:
 # ---------------------------------------------------------------------------
 # CPU API Router (FastAPI)
 # ---------------------------------------------------------------------------
-@app.function(secrets=[modal.Secret.from_name("openmodal-api-key")])
+@app.function(image=base_image, secrets=[modal.Secret.from_name("openmodal-api-key")])
 @modal.asgi_app()
 def web_app():
     import fastapi
