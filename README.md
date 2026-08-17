@@ -32,10 +32,20 @@ bash install.sh
 
 ---
 
-## 🧪 Testing your Endpoint
-Once deployed, you can use the endpoint in **any** software that supports custom OpenAI APIs (like Halucinatron, Continue.dev, AnythingLLM, etc).
+## 💬 Terminal Chat Interface
+Once deployed, you don't need any third-party apps to talk to your AI. You can instantly launch a hacker-style terminal chat that connects directly to your GPU:
 
-You can also run the included test script to verify it works:
+```bash
+python chat.py
+```
+*It features real-time token streaming, conversation memory, and a `/clear` command to wipe history. It works automatically out of the box because the launcher saves your credentials securely to a local `.env` file.*
+
+---
+
+## 🧪 Third-Party Integration
+Because this endpoint is 100% OpenAI-compatible, you can use it in **any** software (like Halucinatron, Continue.dev, AnythingLLM, etc).
+
+You can also run the included testing script if you want to write your own Python integrations:
 ```bash
 python test_openai.py
 ```

@@ -10,9 +10,11 @@ def install_dependencies():
     try:
         import rich
         import modal
+        import openai
+        import dotenv
     except ImportError:
-        print("Installing required dependencies (modal, rich)...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "modal", "rich", "--quiet"])
+        print("Installing required dependencies (modal, rich, openai, python-dotenv)...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "modal", "rich", "openai", "python-dotenv", "--quiet"])
 
 install_dependencies()
 
@@ -193,6 +195,15 @@ def main():
 """, style="italic dim white")
 
         console.print(Panel(success_text, border_style="red", title="[bold white]✔ DEPLOYMENT SUCCESSFUL[/bold white]", padding=(1, 2)))
+        
+        # Save credentials for chat.py
+        try:
+            with open(".env", "w") as f:
+                f.write(f"OPENAI_BASE_URL={base_url}/v1\n")
+                f.write(f"OPENAI_API_KEY={api_key}\n")
+            console.print("[italic dim white]Credentials saved to .env for zero-config chat.[/italic dim white]\n")
+        except Exception as e:
+            console.print(f"[warning]Could not save .env file: {e}[/warning]")
     else:
         console.print("\n[warning]⚠ Deployment succeeded, but the URL could not be parsed automatically.[/warning]")
 
