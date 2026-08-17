@@ -1,0 +1,16 @@
+#!/bin/bash
+if [ "$1" = "usage" ]; then
+    python3 usage.py
+elif [ "$1" = "chat" ]; then
+    python3 chat.py
+else
+    echo ""
+    echo "==================================="
+    echo "      OPENMODAL CLI TOOLKIT"
+    echo "==================================="
+    echo ""
+    echo "Usage:"
+    echo "  ./openmodal usage    - View billing and cost monitor"
+    echo "  ./openmodal chat     - Launch terminal chat with AI"
+    echo ""
+fi
