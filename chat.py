@@ -137,7 +137,7 @@ if __name__ == "__main__":
         model_options = [m.id for m in available_models]
     except Exception as e:
         # Fallback if endpoint is unreachable or booting
-        model_options = ["gemma-4", "llama-3.1", "qwen-3", "phi-4"]
+        model_options = ["gemma-4", "llama-3.1", "qwen-3", "phi-4", "deepseek-r1"]
     
     console.print("\n[bold white]Available Models:[/bold white]")
     for i, m in enumerate(model_options, 1):

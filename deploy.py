@@ -40,6 +40,10 @@ phi_image = base_image.run_commands(
     "huggingface-cli download bartowski/microsoft_Phi-4-mini-instruct-GGUF microsoft_Phi-4-mini-instruct-Q4_K_M.gguf --local-dir /model"
 )
 
+deepseek_image = base_image.run_commands(
+    "huggingface-cli download unsloth/DeepSeek-R1-Distill-Qwen-14B-GGUF DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf --local-dir /model"
+)
+
 app = modal.App("openmodal-router")
 
 # ---------------------------------------------------------------------------
@@ -113,6 +117,23 @@ class PhiWorker:
     def generate(self, messages, max_tokens, temperature):
         return self.llm.create_chat_completion(messages=messages, max_tokens=max_tokens, temperature=temperature, stream=False)
 
+@app.cls(image=deepseek_image, gpu="L4", scaledown_window=40, timeout=30 * 60, startup_timeout=600, secrets=[modal.Secret.from_name("openmodal-api-key")])
+class DeepSeekWorker:
+    @modal.enter()
+    def start(self):
+        from llama_cpp import Llama
+        print("Loading DeepSeek R1 Distill 14B (mmap from disk)...")
+        self.llm = Llama(model_path="/model/DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf", n_gpu_layers=-1, n_ctx=4096, verbose=False)
+
+    @modal.method(is_generator=True)
+    def generate_stream(self, messages, max_tokens, temperature):
+        for chunk in self.llm.create_chat_completion(messages=messages, max_tokens=max_tokens, temperature=temperature, stream=True):
+            yield chunk
+
+    @modal.method()
+    def generate(self, messages, max_tokens, temperature):
+        return self.llm.create_chat_completion(messages=messages, max_tokens=max_tokens, temperature=temperature, stream=False)
+
 # ---------------------------------------------------------------------------
 # CPU API Router (FastAPI)
 # ---------------------------------------------------------------------------
@@ -143,7 +164,8 @@ def web_app():
                 {"id": "gemma-4", "object": "model", "created": 1700000000, "owned_by": "openmodal"},
                 {"id": "llama-3.1", "object": "model", "created": 1700000001, "owned_by": "openmodal"},
                 {"id": "qwen-3", "object": "model", "created": 1700000002, "owned_by": "openmodal"},
-                {"id": "phi-4", "object": "model", "created": 1700000003, "owned_by": "openmodal"}
+                {"id": "phi-4", "object": "model", "created": 1700000003, "owned_by": "openmodal"},
+                {"id": "deepseek-r1", "object": "model", "created": 1700000004, "owned_by": "openmodal"}
             ]
         }
 
@@ -171,6 +193,8 @@ def web_app():
             worker = QwenWorker()
         elif "phi" in model:
             worker = PhiWorker()
+        elif "deepseek" in model:
+            worker = DeepSeekWorker()
         else:
             worker = GemmaWorker()
             
