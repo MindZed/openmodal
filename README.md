@@ -16,12 +16,11 @@ You need a Modal account with a payment method on file to host the GPU endpoint.
 2. Ensure you have set up a billing method in your account settings (Modal requires this to deploy GPU apps).
 
 ### 2. Deploy your API
-Open your terminal in this repository and run the setup launcher for your operating system:
+Open your terminal in this repository and run the setup script for your operating system:
 
-**On Windows:**
-Double-click `install.bat` or run:
+**On Windows (Command Prompt or PowerShell):**
 ```cmd
-install.bat
+.\install.bat
 ```
 
 **On macOS / Linux:**
