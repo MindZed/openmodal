@@ -224,11 +224,12 @@ def web_app():
         
         if stream:
             async def stream_generator():
-                for chunk in worker.generate_stream.remote_gen(messages, max_tokens, temperature):
+                async for chunk in worker.generate_stream.remote_gen.aio(messages, max_tokens, temperature):
                     yield f"data: {json.dumps(chunk)}\n\n"
                 yield "data: [DONE]\n\n"
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
-            return worker.generate.remote(messages, max_tokens, temperature)
+            result = await worker.generate.remote.aio(messages, max_tokens, temperature)
+            return JSONResponse(result)
             
     return web
