@@ -1,19 +1,19 @@
-# ??? OpenModal
+﻿# 🌩️ OpenModal
 
-**Your own private, serverless OpenAI API.** Deploy open-source LLMs to cloud GPUs with one command, and pay exactly .00 when you aren't chatting.
+**Your own private, serverless OpenAI API.** Deploy open-source LLMs to cloud GPUs with one command, and pay exactly $0.00 when you aren't chatting.
 
 ![OpenModal Terminal Demo](https://i.imgur.com/example.gif) <!-- Replace with your actual GIF -->
 
-## ? Features
+## ✨ Features
 
-- ?? **Scale-to-Zero Routing:** The router spawns specific GPU containers (L4/T4) on-demand based on the model you request, and turns off instantly when you are done.
-- ? **Zero-Config Installer:** No Dockerfiles, no cloud consoles. Just type openmodal setup and we handle all authentication, cloud secret injection, and deployment automatically.
-- ?? **Universal Compatibility:** Strict OpenAI API compliance. Use it seamlessly with Cursor, LangChain, CrewAI, Halucintron, or AutoGen.
-- ?? **Cost Tracker:** Built-in terminal dashboard (openmodal usage) to monitor exactly what you spend down to the cent.
+- 🚦 **Scale-to-Zero Routing:** The router spawns specific GPU containers (L4/T4) on-demand based on the model you request, and turns off instantly when you are done.
+- ⚡ **Zero-Config Installer:** No Dockerfiles, no cloud consoles. Just type openmodal setup and we handle all authentication, cloud secret injection, and deployment automatically.
+- 🤖 **Universal Compatibility:** Strict OpenAI API compliance. Use it seamlessly with Cursor, LangChain, CrewAI, Halucintron, or AutoGen.
+- 💸 **Cost Tracker:** Built-in terminal dashboard (openmodal usage) to monitor exactly what you spend down to the cent.
 
 ---
 
-## ??? Quickstart (1 Minute)
+## 🛠️ Quickstart (1 Minute)
 
 ### 1. Install the CLI
 Install OpenModal directly from PyPI:
@@ -36,7 +36,7 @@ openmodal chat
 
 ---
 
-## ??? Architecture
+## 🏗️ Architecture
 
 Under the hood, OpenModal dynamically provisions highly optimized llama.cpp workers running on dedicated cloud GPUs using [Modal](https://modal.com/).
 
@@ -56,7 +56,7 @@ sequenceDiagram
     Note over GPU Worker (Llama),GPU Worker (Gemma): Workers automatically suspend when idle to save costs
 ``
 
-## ?? API Usage
+## 🔌 API Usage
 
 Since it acts exactly like OpenAI, just point your favorite SDKs to your new Base URL!
 
@@ -78,7 +78,7 @@ for chunk in response:
     print(chunk.choices[0].delta.content or "", end="")
 ``
 
-## ?? Pricing & Free Tier
+## 💰 Pricing & Free Tier
 
 OpenModal relies on Modal's cloud infrastructure. Modal provides ** per month in free credits** to all users (requires adding a payment method to verify identity).
 
