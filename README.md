@@ -36,9 +36,8 @@ bash install.sh
 Once deployed, you don't need any third-party apps to talk to your AI. You can instantly launch a hacker-style terminal chat that connects directly to your GPU:
 
 ```bash
-.\openmodal chat
+openmodal chat
 ```
-*(On Linux/Mac use `./openmodal chat`)*
 
 It features real-time token streaming, conversation memory, and a `/clear` command to wipe history. It works automatically out of the box because the launcher saves your credentials securely to a local `.env` file.
 
@@ -48,9 +47,8 @@ It features real-time token streaming, conversation memory, and a `/clear` comma
 To ensure you never accidentally blow past your monthly budget, you can instantly check your exact, down-to-the-penny billing directly from Modal's internal servers:
 
 ```bash
-.\openmodal usage
+openmodal usage
 ```
-*(On Linux/Mac use `./openmodal usage`)*
 
 ---
 
