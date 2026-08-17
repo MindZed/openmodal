@@ -101,9 +101,9 @@ def setup_modal_secret(api_key):
     console.print("\n[bold white]▶ MODAL VAULT INJECTION[/bold white]")
     console.print("[info]Injecting API key into remote Modal Secrets...[/info]")
     try:
-        # Run the modal cli command to create a secret
+        # Run the modal cli command to create/overwrite a secret
         result = subprocess.run(
-            ["modal", "secret", "create", "gemma-api-key", f"API_KEY={api_key}"],
+            ["modal", "secret", "create", "gemma-api-key", f"API_KEY={api_key}", "--force"],
             capture_output=True,
             text=True,
             encoding="utf-8"
