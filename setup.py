@@ -50,9 +50,13 @@ def print_header():
 [/bold red]"""
 
     mindzed_ascii = """[bold red]
-              __  __  ___  __  
- |\/| | |\ | |  \  / |__  |  \ 
- |  | | | \| |__/ /_ |___ |__/ 
+▄▄▄              ▄▄▄
+ ▄▄▄▄▄▄       ▄▄▄▀▄▄
+▄▄  ▀▄▄▄▄    ▀▀▀  ▄▄
+▄▄     ▀▄▄▄▄      ▄    [/bold red][bold white]Mindzed Technologies[/bold white][bold red]
+     ▄▄    ▀▄▄▄▄  ▄
+ ▄▄▄▀▀▀      ▀▀▀▄▄▄▄
+▄▄▄▀            ▀▀▄▄
 [/bold red]"""
 
     header_text = Text.from_markup(f"{openmodal_ascii}\n{mindzed_ascii}\n[bold white]Serverless OpenAI-Compatible Endpoints[/bold white]\n[italic dim red]Powered by Gemma 4 E4B & Modal[/italic dim red]")
