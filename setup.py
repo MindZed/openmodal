@@ -86,9 +86,21 @@ def generate_key(length=16):
     return "ZN_" + "".join(secrets.choice(alphabet) for i in range(length - 3))
 
 def get_api_key():
+    import dotenv
     console.print("\n[bold white]▶ SECURITY CONFIGURATION[/bold white]")
     console.print("[info]An API Key is required to secure your endpoint from unauthorized access.[/info]\n")
     
+    # Check if an API key is already configured
+    existing_key = None
+    if os.path.exists(".env"):
+        existing_key = dotenv.get_key(".env", "API_KEY")
+        
+    if existing_key:
+        masked_key = existing_key[:4] + "*" * 8 + existing_key[-4:]
+        use_existing = Confirm.ask(f"[bold red]? Existing API Key found ({masked_key}). Do you want to reuse it?[/bold red]")
+        if use_existing:
+            return existing_key
+            
     choice = Confirm.ask("[bold red]? Do you want to auto-generate a secure cryptographic key?[/bold red]")
     
     if choice:
