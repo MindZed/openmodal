@@ -114,7 +114,7 @@ def setup_modal_secret(api_key):
         
         # Run the modal cli command to create/overwrite a secret
         result = subprocess.run(
-            ["modal", "secret", "create", "gemma-api-key", f"API_KEY={api_key}", "--force"],
+            ["modal", "secret", "create", "openmodal-api-key", f"API_KEY={api_key}", "--force"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -122,7 +122,7 @@ def setup_modal_secret(api_key):
             env=env_vars
         )
         if result.returncode == 0:
-            console.print("[success]Secret 'gemma-api-key' successfully configured![/success]")
+            console.print("[success]Secret 'openmodal-api-key' successfully configured![/success]")
         else:
             console.print(f"[warning]Failed to create secret. You may need to run `modal token new` first.[/warning]\n{result.stderr}")
             sys.exit(1)
