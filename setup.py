@@ -21,6 +21,7 @@ from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from rich.text import Text
 from rich.theme import Theme
+from rich.table import Table
 
 
 # Set up a sturdy, professional RED theme
@@ -49,19 +50,25 @@ def print_header():
  ########  ###        ########## ###    #### ###       ###  ########  #########  ###     ### ########## 
 [/bold red]"""
 
-    mindzed_ascii = """[bold red]
-▄▄▄              ▄▄▄
- ▄▄▄▄▄▄       ▄▄▄▀▄▄
-▄▄  ▀▄▄▄▄    ▀▀▀  ▄▄
-▄▄     ▀▄▄▄▄      ▄    [/bold red][bold white]Mindzed Technologies[/bold white][bold red]
-     ▄▄    ▀▄▄▄▄  ▄
- ▄▄▄▀▀▀      ▀▀▀▄▄▄▄
-▄▄▄▀            ▀▀▄▄
-[/bold red]"""
+    mindzed_logo_ansi = "\033[38;2;237;41;68;48;2;238;40;68m▄\033[38;2;240;43;67;48;2;245;41;70m▄\033[38;2;235;40;65;49m▄\033[49m              \033[38;2;235;41;65;49m▄\033[38;2;239;43;68;48;2;245;39;69m▄\033[38;2;236;41;68;48;2;238;40;68m▄\033[m\n\033[48;2;236;41;67m \033[38;2;236;42;66;48;2;236;41;67m▄\033[38;2;237;40;66;48;2;237;41;68m▄\033[38;2;234;41;67;48;2;245;43;69m▄\033[38;2;236;41;68;49m▄\033[38;2;239;41;69;49m▄\033[38;2;234;42;64;49m▄\033[49m       \033[38;2;236;39;64;49m▄\033[38;2;238;41;69;49m▄\033[38;2;235;41;66;48;2;237;46;65m▄\033[49;38;2;237;41;68m▀\033[38;2;218;20;37;48;2;226;36;59m▄\033[38;2;235;41;66;48;2;235;40;66m▄\033[m\n\033[38;2;236;40;67;48;2;236;41;67m▄\033[38;2;237;43;67;48;2;236;42;67m▄\033[49m  \033[49;38;2;238;41;68m▀\033[38;2;196;39;59;48;2;236;40;67m▄\033[38;2;233;41;67;48;2;236;41;68m▄\033[38;2;236;40;66;48;2;242;40;67m▄\033[38;2;236;43;69;49m▄\033[49m    \033[49;38;2;215;27;54m▀\033[49;38;2;230;40;63m▀\033[49;38;2;222;33;55m▀\033[49m  \033[38;2;234;21;37;48;2;223;21;37m▄\033[38;2;235;41;67;48;2;235;40;67m▄\033[m\n\033[38;2;236;41;66;48;2;236;41;67m▄\033[38;2;237;42;67;48;2;236;43;67m▄\033[49m     \033[49;38;2;236;41;68m▀\033[38;2;239;34;51;48;2;235;41;66m▄\033[38;2;236;43;68;48;2;236;42;66m▄\033[38;2;236;41;67;48;2;236;40;66m▄\033[38;2;235;43;67;49m▄\033[49m      \033[38;2;228;21;36;48;2;238;22;39m▄\033[48;2;235;41;66m \033[m\n\033[48;2;236;41;67m \033[48;2;236;42;67m \033[49m   \033[38;2;235;40;66;49m▄\033[38;2;234;40;66;49m▄\033[49m    \033[49;38;2;235;41;66m▀\033[38;2;234;41;68;48;2;236;40;67m▄\033[38;2;234;40;66;48;2;236;40;68m▄\033[38;2;232;41;65;49m▄\033[38;2;234;40;68;49m▄\033[49m  \033[38;2;218;20;37;48;2;218;21;36m▄\033[48;2;235;41;66m \033[m\n\033[48;2;236;41;67m \033[38;2;235;41;68;48;2;237;42;67m▄\033[38;2;235;41;68;49m▄\033[38;2;235;41;67;49m▄\033[49;38;2;236;42;69m▀\033[49;38;2;236;43;68m▀\033[49;38;2;234;42;64m▀\033[49m      \033[49;38;2;225;41;61m▀\033[49;38;2;235;41;67m▀\033[49;38;2;236;41;67m▀\033[38;2;235;40;67;48;2;236;40;67m▄\033[38;2;237;41;67;48;2;220;23;35m▄\033[38;2;234;36;59;48;2;218;21;37m▄\033[38;2;235;41;67;48;2;235;41;66m▄\033[m\n\033[38;2;236;41;66;48;2;236;40;67m▄\033[38;2;236;44;68;48;2;234;41;67m▄\033[38;2;216;38;59;48;2;234;42;66m▄\033[49;38;2;240;45;60m▀\033[49m            \033[49;38;2;240;45;60m▀\033[49;38;2;236;41;67m▀\033[38;2;229;44;70;48;2;236;41;67m▄\033[38;2;236;40;67;48;2;236;41;67m▄\033[m\n"
+    logo_render = Text.from_ansi(mindzed_logo_ansi)
 
-    header_text = Text.from_markup(f"{openmodal_ascii}\n{mindzed_ascii}\n[bold white]Serverless OpenAI-Compatible Endpoints[/bold white]\n[italic dim red]Powered by Gemma 4 E4B & Modal[/italic dim red]")
+    # Use a Table layout to position the logo beside the text
+    company_table = Table(show_header=False, box=None, padding=(0, 2))
+    company_table.add_column("Logo")
+    company_table.add_column("Text", vertical="middle")
+    company_table.add_row(
+        logo_render,
+        Text("Mindzed Technologies\nServerless OpenAI-Compatible Endpoints\nPowered by Gemma 4 E4B & Modal", style="bold white")
+    )
+
+    header_text = Text.from_markup(f"{openmodal_ascii}")
     
-    console.print(Panel(header_text, border_style="red", padding=(1, 4), title="[bold white]INITIALIZATION[/bold white]"))
+    # We create an outer group or just print them all inside a panel.
+    from rich.console import Group
+    panel_group = Group(header_text, company_table)
+    
+    console.print(Panel(panel_group, border_style="red", padding=(1, 4), title="[bold white]INITIALIZATION[/bold white]"))
 
 
 def generate_key(length=16):
