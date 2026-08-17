@@ -41,7 +41,7 @@ def fetch_billing_data():
     try:
         # Run the modal billing report command
         result = subprocess.run(
-            ["modal", "billing", "report", "--for", "this month", "--json"],
+            [sys.executable, "-m", "modal", "billing", "report", "--for", "this month", "--json"],
             capture_output=True,
             text=True,
             check=True
