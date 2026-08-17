@@ -190,8 +190,9 @@ def deploy_to_modal(installed_models):
     env_vars["PYTHONIOENCODING"] = "utf-8"
     env_vars["INSTALLED_MODELS"] = installed_models
     
+    deploy_script = os.path.join(os.path.dirname(__file__), "deploy.py")
     process = subprocess.Popen(
-        [sys.executable, "-m", "modal", "deploy", "deploy.py"],
+        [sys.executable, "-m", "modal", "deploy", deploy_script],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
@@ -273,16 +274,19 @@ def main():
 
         console.print(Panel(success_text, border_style="red", title="[bold white]✔ DEPLOYMENT SUCCESSFUL[/bold white]", padding=(1, 2)))
         
-        # Save credentials for chat.py
+        # Save credentials globally
         try:
-            with open(".env", "w") as f:
+            config_dir = os.path.expanduser("~/.openmodal")
+            os.makedirs(config_dir, exist_ok=True)
+            env_path = os.path.join(config_dir, ".env")
+            with open(env_path, "w") as f:
                 f.write(f"OPENAI_BASE_URL={base_url}/v1\n")
                 f.write(f"OPENAI_API_KEY={api_key}\n")
                 f.write(f"API_KEY={api_key}\n")
                 f.write(f"INSTALLED_MODELS={installed_models}\n")
-            console.print("[italic dim white]Credentials saved to .env for zero-config chat.[/italic dim white]\n")
+            console.print(f"[italic dim white]Credentials saved to {env_path} for zero-config chat.[/italic dim white]\n")
         except Exception as e:
-            console.print(f"[warning]Could not save .env file: {e}[/warning]")
+            console.print(f"[warning]Could not save global config file: {e}[/warning]")
     else:
         console.print("\n[warning]⚠ Deployment succeeded, but the URL could not be parsed automatically.[/warning]")
 

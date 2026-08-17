@@ -39,13 +39,19 @@ custom_theme = Theme({
 console = Console(theme=custom_theme)
 
 def load_credentials():
-    load_dotenv()
-    base_url = os.getenv("OPENAI_BASE_URL")
-    api_key = os.getenv("OPENAI_API_KEY")
+    config_dir = os.path.expanduser("~/.openmodal")
+    env_path = os.path.join(config_dir, ".env")
+    
+    if os.path.exists(env_path):
+        from dotenv import load_dotenv
+        load_dotenv(env_path)
+        
+    base_url = os.environ.get("OPENAI_BASE_URL")
+    api_key = os.environ.get("OPENAI_API_KEY")
     
     if not base_url or not api_key:
-        console.print("[error]✖ Credentials not found![/error]")
-        console.print("[system]Please run 'python setup.py' or 'install.bat' first to deploy your endpoint and generate a .env file.[/system]")
+        console.print(f"[error]✖ Credentials not found at {env_path}![/error]")
+        console.print("[system]Please run 'openmodal setup' first to deploy your endpoint and generate credentials.[/system]")
         sys.exit(1)
         
     return base_url, api_key

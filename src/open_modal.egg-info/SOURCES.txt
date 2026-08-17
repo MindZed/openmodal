@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+src/open_modal.egg-info/PKG-INFO
+src/open_modal.egg-info/SOURCES.txt
+src/open_modal.egg-info/dependency_links.txt
+src/open_modal.egg-info/entry_points.txt
+src/open_modal.egg-info/requires.txt
+src/open_modal.egg-info/top_level.txt
+src/openmodal/__init__.py
+src/openmodal/chat_cmd.py
+src/openmodal/cli.py
+src/openmodal/deploy.py
+src/openmodal/setup_cmd.py
+src/openmodal/usage_cmd.py

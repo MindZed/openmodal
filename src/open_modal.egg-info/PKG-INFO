@@ -1,3 +1,19 @@
+Metadata-Version: 2.4
+Name: open-modal
+Version: 0.1.0
+Summary: Your private, serverless OpenAI-compatible API on Modal.
+Author: OpenModal Contributors
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: modal
+Requires-Dist: rich
+Requires-Dist: openai
+Requires-Dist: questionary
+Requires-Dist: python-dotenv
+Requires-Dist: fastapi
+Requires-Dist: pydantic
+
 # ??? OpenModal
 
 **Your own private, serverless OpenAI API.** Deploy open-source LLMs to cloud GPUs with one command, and pay exactly .00 when you aren't chatting.

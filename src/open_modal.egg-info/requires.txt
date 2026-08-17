@@ -1,0 +1,7 @@
+modal
+rich
+openai
+questionary
+python-dotenv
+fastapi
+pydantic
