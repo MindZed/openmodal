@@ -33,7 +33,7 @@ MODEL_PATH = "/model/gemma-4-E4B-it-Q3_K_M.gguf"
     scaledown_window=40,
     timeout=30 * 60,
     startup_timeout=600,
-    secrets=[modal.Secret.from_name("gemma-api-key", require_missing=True)]
+    secrets=[modal.Secret.from_name("gemma-api-key")]
 )
 class Server:
     @modal.enter()
