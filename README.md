@@ -16,11 +16,20 @@ You need a Modal account with a payment method on file to host the GPU endpoint.
 2. Ensure you have set up a billing method in your account settings (Modal requires this to deploy GPU apps).
 
 ### 2. Deploy your API
-Open your terminal in this repository and run the interactive setup script:
-```bash
-python setup.py
+Open your terminal in this repository and run the setup launcher for your operating system:
+
+**On Windows:**
+Double-click `install.bat` or run:
+```cmd
+install.bat
 ```
-*The CLI will automatically install required packages, pop open a browser to authenticate your Modal account, ask you to set an API key, and deploy the AI. It will print out your new OpenAI-compatible Base URL at the end.*
+
+**On macOS / Linux:**
+```bash
+bash install.sh
+```
+
+*The launcher will automatically install Python if it is missing. Then, it installs required packages, opens a browser to authenticate your Modal account, asks you to set an API key, and deploys the AI. It will print out your new OpenAI-compatible Base URL at the end.*
 
 ---
 
