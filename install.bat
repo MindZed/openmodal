@@ -34,6 +34,9 @@ IF /I "%install_choice%"=="y" (
 )
 
 :run_setup
+echo =^> Adding OpenModal to User PATH for global access...
+powershell -NoProfile -Command "$curr = [Environment]::GetEnvironmentVariable('Path', 'User'); $dir = (Get-Location).Path; if ($curr -notlike ('*' + $dir + '*')) { [Environment]::SetEnvironmentVariable('Path', $curr + ';' + $dir, 'User'); Write-Host '=> OpenModal added to PATH.' }"
+
 echo =^> Launching Interactive Setup...
 python setup.py
 pause

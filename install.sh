@@ -40,6 +40,13 @@ else
     fi
 fi
 
-echo "=> Python detected: $($PYTHON_CMD --version)"
+echo "=> Adding OpenModal to PATH for global access..."
+INSTALL_DIR="$(pwd)"
+chmod +x "$INSTALL_DIR/openmodal"
+if [ -d "$HOME/.local/bin" ]; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$INSTALL_DIR/openmodal" "$HOME/.local/bin/openmodal"
+fi
+
 echo "=> Launching Interactive Setup..."
 $PYTHON_CMD setup.py
