@@ -11,34 +11,51 @@ base_image = (
     )
     .apt_install("build-essential", "cmake", "ninja-build", "clang", "gcc", "g++", "git")
     .run_commands(
-        "CMAKE_ARGS='-DGGML_CUDA=on' pip install huggingface_hub[cli] llama-cpp-python==0.3.34 fastapi[standard] --no-cache-dir",
+        "pip install huggingface_hub[cli] llama-cpp-python==0.3.34 fastapi[standard] --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124 --no-cache-dir",
         gpu="T4"
     )
     .run_commands("mkdir -p /model")
 )
 
 # ---------------------------------------------------------------------------
-# Independent Model Snapshots
+# Independent Model Snapshots (Conditionally Built)
 # ---------------------------------------------------------------------------
-gemma_image = base_image.run_commands(
-    "huggingface-cli download unsloth/gemma-4-E4B-it-GGUF gemma-4-E4B-it-Q3_K_M.gguf --local-dir /model"
-)
+INSTALLED_MODELS = os.environ.get("INSTALLED_MODELS", "gemma-4").split(",")
 
-llama_image = base_image.run_commands(
-    "huggingface-cli download bartowski/Meta-Llama-3.1-8B-Instruct-GGUF Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf --local-dir /model"
-)
+if "gemma-4" in INSTALLED_MODELS:
+    gemma_image = base_image.run_commands(
+        "huggingface-cli download unsloth/gemma-4-E4B-it-GGUF gemma-4-E4B-it-Q3_K_M.gguf --local-dir /model"
+    )
+else:
+    gemma_image = base_image
 
-qwen_image = base_image.run_commands(
-    "huggingface-cli download bartowski/Qwen2.5-7B-Instruct-GGUF Qwen2.5-7B-Instruct-Q4_K_M.gguf --local-dir /model"
-)
+if "llama-3.1" in INSTALLED_MODELS:
+    llama_image = base_image.run_commands(
+        "huggingface-cli download bartowski/Meta-Llama-3.1-8B-Instruct-GGUF Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf --local-dir /model"
+    )
+else:
+    llama_image = base_image
 
-phi_image = base_image.run_commands(
-    "huggingface-cli download bartowski/microsoft_Phi-4-mini-instruct-GGUF microsoft_Phi-4-mini-instruct-Q4_K_M.gguf --local-dir /model"
-)
+if "qwen-3" in INSTALLED_MODELS:
+    qwen_image = base_image.run_commands(
+        "huggingface-cli download bartowski/Qwen2.5-7B-Instruct-GGUF Qwen2.5-7B-Instruct-Q4_K_M.gguf --local-dir /model"
+    )
+else:
+    qwen_image = base_image
 
-deepseek_image = base_image.run_commands(
-    "huggingface-cli download unsloth/DeepSeek-R1-Distill-Qwen-14B-GGUF DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf --local-dir /model"
-)
+if "phi-4" in INSTALLED_MODELS:
+    phi_image = base_image.run_commands(
+        "huggingface-cli download bartowski/microsoft_Phi-4-mini-instruct-GGUF microsoft_Phi-4-mini-instruct-Q4_K_M.gguf --local-dir /model"
+    )
+else:
+    phi_image = base_image
+
+if "deepseek-r1" in INSTALLED_MODELS:
+    deepseek_image = base_image.run_commands(
+        "huggingface-cli download unsloth/DeepSeek-R1-Distill-Qwen-14B-GGUF DeepSeek-R1-Distill-Qwen-14B-Q4_K_M.gguf --local-dir /model"
+    )
+else:
+    deepseek_image = base_image
 
 app = modal.App("openmodal-router")
 
@@ -159,14 +176,12 @@ def web_app():
         if not EXPECTED_KEY or auth_header != f"Bearer {EXPECTED_KEY}":
             return JSONResponse(status_code=401, content={"error": "Unauthorized: Invalid API Key"})
             
+        installed_models = os.environ.get("INSTALLED_MODELS", "gemma-4").split(",")
         return {
             "object": "list",
             "data": [
-                {"id": "gemma-4", "object": "model", "created": 1700000000, "owned_by": "openmodal"},
-                {"id": "llama-3.1", "object": "model", "created": 1700000001, "owned_by": "openmodal"},
-                {"id": "qwen-3", "object": "model", "created": 1700000002, "owned_by": "openmodal"},
-                {"id": "phi-4", "object": "model", "created": 1700000003, "owned_by": "openmodal"},
-                {"id": "deepseek-r1", "object": "model", "created": 1700000004, "owned_by": "openmodal"}
+                {"id": m, "object": "model", "created": 1700000000, "owned_by": "openmodal"}
+                for m in installed_models
             ]
         }
 
@@ -185,6 +200,11 @@ def web_app():
             
         model = body.get("model", "gemma-4").lower()
         stream = body.get("stream", False)
+        installed_models = os.environ.get("INSTALLED_MODELS", "gemma-4").split(",")
+        
+        # Check if requested model is actually installed
+        if not any(m in model for m in installed_models) and model not in installed_models:
+            return JSONResponse(status_code=400, content={"error": f"Model '{model}' is not installed on this router. Re-run `openmodal setup` to install it."})
         
         if "gemma" in model:
             worker = GemmaWorker()
