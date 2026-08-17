@@ -8,26 +8,19 @@ It is heavily optimized with an ultra-fast C++ backend (`llama.cpp`), 4-bit GGUF
 
 ## 🚀 One-Click Quickstart
 
-We've built an automated CLI tool to handle everything (configuring secrets, generating API keys, and streaming the deployment logs) in one step.
+We've built an automated CLI tool to handle everything (installing dependencies, Modal authentication, configuring secrets, generating API keys, and streaming the deployment logs) in one single step.
 
 ### 1. Prerequisites
-You need a Modal account to host the GPU endpoint.
+You need a Modal account with a payment method on file to host the GPU endpoint.
 1. Create a free account at [modal.com](https://modal.com)
-2. Open your terminal and install the Modal python package (and `rich` for the CLI):
-   ```bash
-   pip install modal rich
-   ```
-3. Authenticate your laptop to your Modal account:
-   ```bash
-   modal token new
-   ```
+2. Ensure you have set up a billing method in your account settings (Modal requires this to deploy GPU apps).
 
 ### 2. Deploy your API
-Run the interactive setup script:
+Open your terminal in this repository and run the interactive setup script:
 ```bash
 python setup.py
 ```
-*The CLI will ask you to set an API key, automatically inject it into Modal Secrets, and deploy the AI. It will print out your new OpenAI-compatible Base URL at the end.*
+*The CLI will automatically install required packages, pop open a browser to authenticate your Modal account, ask you to set an API key, and deploy the AI. It will print out your new OpenAI-compatible Base URL at the end.*
 
 ---
 

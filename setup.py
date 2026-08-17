@@ -4,11 +4,24 @@ import sys
 import string
 import secrets
 import subprocess
+
+# --- AUTO INSTALL DEPENDENCIES ---
+def install_dependencies():
+    try:
+        import rich
+        import modal
+    except ImportError:
+        print("Installing required dependencies (modal, rich)...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "modal", "rich", "--quiet"])
+
+install_dependencies()
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from rich.text import Text
 from rich.theme import Theme
+
 
 # Set up a strictly RED theme
 custom_theme = Theme({
@@ -103,8 +116,30 @@ def deploy_to_modal():
         
     return base_url
 
+def ensure_modal_auth():
+    console.print("\n[info]=> Checking Modal authentication...[/info]")
+    
+    # Check if modal is authenticated by trying to read the active profile
+    result = subprocess.run(["modal", "profile", "current"], capture_output=True, text=True)
+    if result.returncode != 0:
+        console.print("[warning]You are not authenticated with Modal yet.[/warning]")
+        console.print("[info]Opening browser to authenticate... Please log in and authorize the CLI.[/info]")
+        
+        # This will open the browser and block until the user authorizes
+        auth_result = subprocess.run(["modal", "token", "new"])
+        
+        if auth_result.returncode != 0:
+            console.print("[danger]Authentication failed or was cancelled. Exiting.[/danger]")
+            sys.exit(1)
+            
+        console.print("[success]Successfully authenticated with Modal![/success]")
+    else:
+        console.print("[success]Already authenticated with Modal![/success]")
+
+
 def main():
     print_header()
+    ensure_modal_auth()
     
     api_key = get_api_key()
     setup_modal_secret(api_key)
