@@ -224,9 +224,12 @@ def ensure_modal_auth():
     env_vars = os.environ.copy()
     env_vars["PYTHONIOENCODING"] = "utf-8"
 
-    result = subprocess.run([sys.executable, "-m", "modal", "profile", "current"], capture_output=True, text=True, encoding="utf-8", errors="replace", env=env_vars)
+    result = subprocess.run([sys.executable, "-m", "modal", "secret", "list"], capture_output=True, text=True, encoding="utf-8", errors="replace", env=env_vars)
     if result.returncode != 0:
-        console.print("[warning]⚠ No active Modal session found.[/warning]")
+        console.print("[warning]⚠ No active Modal session found, or your token is invalid.[/warning]")
+        console.print("\n[bold yellow]To host this router, you must have a Modal account with billing enabled.[/bold yellow]")
+        console.print("[italic dim]Modal provides $30/month in free credits, but requires a payment method on file.[/italic dim]\n")
+        
         console.print("[info]Opening browser to authenticate... Please authorize the CLI.[/info]")
         
         auth_result = subprocess.run([sys.executable, "-m", "modal", "token", "new"], env=env_vars)
