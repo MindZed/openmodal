@@ -12,9 +12,10 @@ def install_dependencies():
         import modal
         import openai
         import dotenv
+        import questionary
     except ImportError:
-        print("Installing required dependencies (modal, rich, openai, python-dotenv)...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "modal", "rich", "openai", "python-dotenv", "--quiet"])
+        print("Installing required dependencies (modal, rich, openai, python-dotenv, questionary)...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "modal", "rich", "openai", "python-dotenv", "questionary", "--quiet"])
 
 install_dependencies()
 
@@ -87,46 +88,41 @@ def generate_key(length=16):
 
 def get_installed_models():
     import dotenv
+    import questionary
     console.print("\n[bold white]▶ MODEL SELECTION[/bold white]")
-    console.print("[info]Select which AI models you want to host on your OpenModal Router.[/info]")
+    console.print("[info]Select which AI models you want to host on your OpenModal Router.[/info]\n")
     
     existing_models = "gemma-4"
     if os.path.exists(".env"):
         existing_models = dotenv.get_key(".env", "INSTALLED_MODELS") or "gemma-4"
         
-    models_map = {
-        "1": "gemma-4",
-        "2": "deepseek-r1",
-        "3": "llama-3.1",
-        "4": "qwen-3",
-        "5": "phi-4"
-    }
+    installed_list = existing_models.split(",")
     
-    console.print("  1. Gemma 4 E4B (L4 GPU)")
-    console.print("  2. DeepSeek R1 Distill 14B (L4 GPU)")
-    console.print("  3. Llama 3.1 8B (T4 GPU)")
-    console.print("  4. Qwen 3 8B (T4 GPU)")
-    console.print("  5. Phi 4 Mini (T4 GPU)")
-    console.print(f"\n[dim]Currently installed: {existing_models}[/dim]")
+    model_choices = [
+        {"name": "Gemma 4 E4B (L4 GPU)", "value": "gemma-4"},
+        {"name": "DeepSeek R1 Distill 14B (L4 GPU)", "value": "deepseek-r1"},
+        {"name": "Llama 3.1 8B (T4 GPU)", "value": "llama-3.1"},
+        {"name": "Qwen 3 8B (T4 GPU)", "value": "qwen-3"},
+        {"name": "Phi 4 Mini (T4 GPU)", "value": "phi-4"},
+    ]
     
-    # Calculate default selection based on existing models
-    reverse_map = {v: k for k, v in models_map.items()}
-    default_choices = [reverse_map[m] for m in existing_models.split(",") if m in reverse_map]
-    default_choice_str = ",".join(default_choices) if default_choices else "1"
-    
+    # Mark previously installed models as checked
+    for choice in model_choices:
+        if choice["value"] in installed_list:
+            choice["checked"] = True
+
     while True:
-        choices = Prompt.ask("\n[bold red]➔ Enter model numbers to install (comma-separated, e.g., 1,3,5)[/bold red]", default=default_choice_str)
-        selected = []
-        for choice in choices.split(","):
-            choice = choice.strip()
-            if choice in models_map:
-                selected.append(models_map[choice])
+        selected = questionary.checkbox(
+            "Use Spacebar to select, and Enter to confirm:",
+            choices=[questionary.Choice(c["name"], value=c["value"], checked=c.get("checked", False)) for c in model_choices],
+            style=questionary.Style([('qmark', 'fg:#ff0000 bold'), ('question', 'bold'), ('selected', 'fg:#ff0000 bold')])
+        ).ask()
         
         if not selected:
             console.print("[warning]⚠ You must select at least one model.[/warning]")
         else:
             selected_str = ",".join(selected)
-            console.print(f"[success]✔ Selected: {selected_str}[/success]")
+            console.print(f"\n[success]✔ Selected Models: {selected_str}[/success]")
             return selected_str
 
 def get_api_key():
