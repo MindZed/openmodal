@@ -157,6 +157,15 @@ def web_app():
     from fastapi import Request
     from fastapi.responses import JSONResponse, StreamingResponse
     from fastapi.middleware.cors import CORSMiddleware
+    from pydantic import BaseModel
+    from typing import List, Dict, Any, Optional
+
+    class ChatRequest(BaseModel):
+        model: str = "gemma-4"
+        messages: List[Dict[str, Any]]
+        stream: bool = False
+        max_tokens: int = 512
+        temperature: float = 0.7
 
     web = fastapi.FastAPI(title="OpenModal Router API")
     
@@ -186,20 +195,18 @@ def web_app():
         }
 
     @web.post("/v1/chat/completions")
-    async def chat_completions(request: Request):
+    def chat_completions(request: Request, body: ChatRequest):
         auth_header = request.headers.get("Authorization")
         EXPECTED_KEY = os.environ.get("API_KEY", "")
         
         if not EXPECTED_KEY or auth_header != f"Bearer {EXPECTED_KEY}":
             return JSONResponse(status_code=401, content={"error": "Unauthorized: Invalid API Key"})
             
-        body = await request.json()
-        messages = body.get("messages", [])
-        if not messages:
+        if not body.messages:
             return JSONResponse(status_code=400, content={"error": "Missing 'messages' in JSON body"})
             
-        model = body.get("model", "gemma-4").lower()
-        stream = body.get("stream", False)
+        model = body.model.lower()
+        stream = body.stream
         installed_models = os.environ.get("INSTALLED_MODELS", "gemma-4").split(",")
         
         # Check if requested model is actually installed
@@ -219,17 +226,14 @@ def web_app():
         else:
             worker = GemmaWorker()
             
-        max_tokens = body.get("max_tokens", 512)
-        temperature = body.get("temperature", 0.7)
-        
         if stream:
-            async def stream_generator():
-                async for chunk in worker.generate_stream.remote_gen.aio(messages, max_tokens, temperature):
+            def stream_generator():
+                for chunk in worker.generate_stream.remote_gen(body.messages, body.max_tokens, body.temperature):
                     yield f"data: {json.dumps(chunk)}\n\n"
                 yield "data: [DONE]\n\n"
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
-            result = await worker.generate.remote.aio(messages, max_tokens, temperature)
+            result = worker.generate.remote(body.messages, body.max_tokens, body.temperature)
             return JSONResponse(result)
             
     return web
