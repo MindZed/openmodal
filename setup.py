@@ -23,13 +23,13 @@ from rich.text import Text
 from rich.theme import Theme
 
 
-# Set up a sturdy, professional theme
+# Set up a sturdy, professional RED theme
 custom_theme = Theme({
-    "info": "bold cyan",
+    "info": "bold white",
     "warning": "bold yellow",
     "danger": "bold red",
     "success": "bold green",
-    "highlight": "bold magenta"
+    "highlight": "bold red"
 })
 console = Console(theme=custom_theme)
 
@@ -39,27 +39,25 @@ def clear_screen():
 def print_header():
     clear_screen()
     
-    openmodal_ascii = """[bold cyan]
-  ___                  __  __         _       _ 
- / _ \ _ __   ___ _ __|  \/  | ___   | | __ _| |
-| | | | '_ \ / _ \ '_ \ |\/| |/ _ \  | |/ _` | |
-| |_| | |_) |  __/ | | | |  | | (_) | | | (_| | |
- \___/| .__/ \___|_| |_|_|  |_|\___/  |_|\__,_|_|
-      |_|                                        
-[/bold cyan]"""
-
-    mindzed_ascii = """[bold red]
- __  __ _           _ ______        _ 
-|  \/  (_)         | |___  /       | |
-| \  / |_ _ __   __| |  / / ___  __| |
-| |\/| | | '_ \ / _` | / / / _ \/ _` |
-| |  | | | | | | (_| |/ /_|  __/ (_| |
-|_|  |_|_|_| |_|\__,_/___\_\___|\__,_|
+    openmodal_ascii = """[bold red]
+ ::::::::  :::::::::  :::::::::: ::::    ::: ::::    ::::   ::::::::  :::::::::      :::     :::        
+:┼:    :┼: :┼:    :┼: :┼:        :┼:┼:   :┼: ┼:┼:┼: :┼:┼:┼ :┼:    :┼: :┼:    :┼:   :┼: :┼:   :┼:        
+┼:┼    ┼:┼ ┼:┼    ┼:┼ ┼:┼        :┼:┼:┼  ┼:┼ ┼:┼ ┼:┼:┼ ┼:┼ ┼:┼    ┼:┼ ┼:┼    ┼:┼  ┼:┼   ┼:┼  ┼:┼        
+┼#┼    ┼:┼ ┼#┼┼:┼┼#┼  ┼#┼┼:┼┼#   ┼#┼ ┼:┼ ┼#┼ ┼#┼  ┼:┼  ┼#┼ ┼#┼    ┼:┼ ┼#┼    ┼:┼ ┼#┼┼:┼┼#┼┼: ┼#┼        
+┼#┼    ┼#┼ ┼#┼        ┼#┼        ┼#┼  ┼#┼#┼# ┼#┼       ┼#┼ ┼#┼    ┼#┼ ┼#┼    ┼#┼ ┼#┼     ┼#┼ ┼#┼        
+#┼#    #┼# #┼#        #┼#        #┼#   #┼#┼# #┼#       #┼# #┼#    #┼# #┼#    #┼# #┼#     #┼# #┼#        
+ ########  ###        ########## ###    #### ###       ###  ########  #########  ###     ### ########## 
 [/bold red]"""
 
-    header_text = Text.from_markup(f"{openmodal_ascii}\n{mindzed_ascii}\n[bold white]Serverless OpenAI-Compatible Endpoints[/bold white]\n[italic dim]Powered by Gemma 4 E4B & Modal[/italic dim]")
+    mindzed_ascii = """[bold red]
+              __  __  ___  __  
+ |\/| | |\ | |  \  / |__  |  \ 
+ |  | | | \| |__/ /_ |___ |__/ 
+[/bold red]"""
+
+    header_text = Text.from_markup(f"{openmodal_ascii}\n{mindzed_ascii}\n[bold white]Serverless OpenAI-Compatible Endpoints[/bold white]\n[italic dim red]Powered by Gemma 4 E4B & Modal[/italic dim red]")
     
-    console.print(Panel(header_text, border_style="cyan", padding=(1, 4), title="[bold white]INITIALIZATION[/bold white]"))
+    console.print(Panel(header_text, border_style="red", padding=(1, 4), title="[bold white]INITIALIZATION[/bold white]"))
 
 
 def generate_key(length=16):
@@ -70,7 +68,7 @@ def get_api_key():
     console.print("\n[bold white]▶ SECURITY CONFIGURATION[/bold white]")
     console.print("[info]An API Key is required to secure your endpoint from unauthorized access.[/info]\n")
     
-    choice = Confirm.ask("[bold cyan]? Do you want to auto-generate a secure cryptographic key?[/bold cyan]")
+    choice = Confirm.ask("[bold red]? Do you want to auto-generate a secure cryptographic key?[/bold red]")
     
     if choice:
         key = generate_key()
@@ -78,7 +76,7 @@ def get_api_key():
         return key
     else:
         while True:
-            key = Prompt.ask("\n[bold cyan]➔ Enter your custom API Key (max 16 chars)[/bold cyan]")
+            key = Prompt.ask("\n[bold red]➔ Enter your custom API Key (max 16 chars)[/bold red]")
             if len(key) > 16:
                 console.print("[warning]⚠ Key is too long! Maximum 16 characters.[/warning]")
             elif len(key) == 0:
@@ -171,9 +169,9 @@ def main():
         
         success_text = Text()
         success_text.append("Your OpenModal API is live and fully OpenAI-compatible.\n\n", style="white")
-        success_text.append("BASE URL: ", style="bold cyan")
+        success_text.append("BASE URL: ", style="bold red")
         success_text.append(f"{base_url}/v1\n", style="bold white")
-        success_text.append("API KEY:  ", style="bold cyan")
+        success_text.append("API KEY:  ", style="bold red")
         success_text.append(f"{api_key}\n\n", style="bold white")
         
         success_text.append("CURL TEST COMMAND:\n", style="bold yellow")
@@ -183,7 +181,7 @@ def main():
   -d '{{"model": "gemma-4", "messages": [{{"role": "user", "content": "Hi, tell me a joke."}}]}}'
 """, style="italic dim white")
 
-        console.print(Panel(success_text, border_style="green", title="[bold green]✔ DEPLOYMENT SUCCESSFUL[/bold green]", padding=(1, 2)))
+        console.print(Panel(success_text, border_style="red", title="[bold white]✔ DEPLOYMENT SUCCESSFUL[/bold white]", padding=(1, 2)))
     else:
         console.print("\n[warning]⚠ Deployment succeeded, but the URL could not be parsed automatically.[/warning]")
 
