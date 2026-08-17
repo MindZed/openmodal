@@ -18,6 +18,14 @@ def install_dependencies():
 
 install_dependencies()
 
+# Set UTF-8 encoding for Windows console to prevent charmap crashes
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
@@ -129,7 +137,8 @@ def deploy_to_modal():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
-        encoding="utf-8"
+        encoding="utf-8",
+        errors="replace"
     )
     
     for line in iter(process.stdout.readline, ''):

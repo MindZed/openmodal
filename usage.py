@@ -20,6 +20,14 @@ except ImportError:
     from rich.progress import Progress, BarColumn, TextColumn
     from rich.table import Table
 
+# Set UTF-8 encoding for Windows console to prevent charmap crashes
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 custom_theme = Theme({
     "info": "bold white",
     "danger": "bold red",
