@@ -1,10 +1,6 @@
 import modal
 import json
 import os
-import fastapi
-from fastapi import Request
-from fastapi.responses import JSONResponse, StreamingResponse
-from fastapi.middleware.cors import CORSMiddleware
 
 # ---------------------------------------------------------------------------
 # Base Image & Shared Dependencies
@@ -140,6 +136,11 @@ class DeepSeekWorker:
 @app.function(secrets=[modal.Secret.from_name("openmodal-api-key")])
 @modal.asgi_app()
 def web_app():
+    import fastapi
+    from fastapi import Request
+    from fastapi.responses import JSONResponse, StreamingResponse
+    from fastapi.middleware.cors import CORSMiddleware
+
     web = fastapi.FastAPI(title="OpenModal Router API")
     
     web.add_middleware(

@@ -9,18 +9,23 @@ def ask_gemma(prompt):
     start_time = time.time()
     try:
         # Lookup our deployed Modal class natively
-        Server = modal.Cls.from_name("gemma-4-e4b-server", "Server")
+        Server = modal.Cls.from_name("openmodal-router", "GemmaWorker")
         
         # Instantiate and call the generate method
         # This will securely connect over gRPC and handle all authentication
         server = Server()
-        answer = server.generate.remote(prompt)
+        
+        messages = [{"role": "user", "content": prompt}]
+        answer = server.generate.remote(messages=messages, max_tokens=512, temperature=0.7)
+        
+        # answer is an OpenAI completion dict
+        text_answer = answer["choices"][0]["message"]["content"]
         
         elapsed = time.time() - start_time
         
         # Clear the "Thinking..." line and print the answer
         sys.stdout.write("\r\033[K")
-        print(f"[Gemma]: {answer.strip()}")
+        print(f"[Gemma]: {text_answer.strip()}")
         print(f"\n(Response time: {elapsed:.2f} seconds)")
         
     except Exception as e:
