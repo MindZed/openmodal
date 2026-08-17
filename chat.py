@@ -63,8 +63,7 @@ def print_welcome():
     
     console.print(Panel(welcome_text, border_style="red"))
 
-def chat_loop(client):
-    model_name = "google/gemma-4-E4B-it" # The specific model deployed
+def chat_loop(client, model_name):
     
     # Initialize conversation history
     messages = [
@@ -94,7 +93,7 @@ def chat_loop(client):
             messages.append({"role": "user", "content": user_input})
             
             # Request response from Modal
-            console.print("\n[ai]Gemma:[/ai] ", end="")
+            console.print(f"\n[ai]{model_name}:[/ai] ", end="")
             
             # Stream the response
             stream = client.chat.completions.create(
@@ -128,7 +127,31 @@ def chat_loop(client):
 
 if __name__ == "__main__":
     base_url, api_key = load_credentials()
-    client = OpenAI(base_url=base_url, api_key=api_key)
+    client = OpenAI(base_url=f"{base_url}/v1", api_key=api_key)
     
     print_welcome()
-    chat_loop(client)
+    
+    # Automatically fetch available models from our router
+    try:
+        available_models = client.models.list().data
+        model_options = [m.id for m in available_models]
+    except Exception as e:
+        # Fallback if endpoint is unreachable or booting
+        model_options = ["gemma-4", "llama-3.1", "qwen-3", "phi-4"]
+    
+    console.print("\n[bold white]Available Models:[/bold white]")
+    for i, m in enumerate(model_options, 1):
+        console.print(f"  {i}. [info]{m}[/info]")
+        
+    choice = input("\nSelect a model (1-4) [default: 1]: ").strip()
+    try:
+        idx = int(choice) - 1
+        if 0 <= idx < len(model_options):
+            model_name = model_options[idx]
+        else:
+            model_name = model_options[0]
+    except:
+        model_name = model_options[0]
+
+    console.print(f"\n[info]Connected to OpenModal Router -> {model_name}[/info]")
+    chat_loop(client, model_name)
