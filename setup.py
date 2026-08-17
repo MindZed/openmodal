@@ -163,7 +163,7 @@ def setup_modal_secret(api_key, installed_models):
         
         # We pass both API_KEY and INSTALLED_MODELS to Modal
         result = subprocess.run(
-            ["modal", "secret", "create", "openmodal-api-key", f"API_KEY={api_key}", f"INSTALLED_MODELS={installed_models}", "--force"],
+            [sys.executable, "-m", "modal", "secret", "create", "openmodal-api-key", f"API_KEY={api_key}", f"INSTALLED_MODELS={installed_models}", "--force"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -191,7 +191,7 @@ def deploy_to_modal(installed_models):
     env_vars["INSTALLED_MODELS"] = installed_models
     
     process = subprocess.Popen(
-        ["modal", "deploy", "deploy.py"],
+        [sys.executable, "-m", "modal", "deploy", "deploy.py"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
@@ -224,12 +224,12 @@ def ensure_modal_auth():
     env_vars = os.environ.copy()
     env_vars["PYTHONIOENCODING"] = "utf-8"
 
-    result = subprocess.run(["modal", "profile", "current"], capture_output=True, text=True, encoding="utf-8", errors="replace", env=env_vars)
+    result = subprocess.run([sys.executable, "-m", "modal", "profile", "current"], capture_output=True, text=True, encoding="utf-8", errors="replace", env=env_vars)
     if result.returncode != 0:
         console.print("[warning]⚠ No active Modal session found.[/warning]")
         console.print("[info]Opening browser to authenticate... Please authorize the CLI.[/info]")
         
-        auth_result = subprocess.run(["modal", "token", "new"], env=env_vars)
+        auth_result = subprocess.run([sys.executable, "-m", "modal", "token", "new"], env=env_vars)
         
         if auth_result.returncode != 0:
             console.print("[danger]✖ Authentication failed or cancelled.[/danger]")
