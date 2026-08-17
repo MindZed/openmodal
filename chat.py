@@ -127,7 +127,11 @@ def chat_loop(client, model_name):
 
 if __name__ == "__main__":
     base_url, api_key = load_credentials()
-    client = OpenAI(base_url=f"{base_url}/v1", api_key=api_key)
+    
+    if not base_url.endswith("/v1"):
+        base_url = f"{base_url}/v1"
+        
+    client = OpenAI(base_url=base_url, api_key=api_key)
     
     print_welcome()
     
