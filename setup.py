@@ -92,10 +92,8 @@ def get_installed_models():
     console.print("\n[bold white]▶ MODEL SELECTION[/bold white]")
     console.print("[info]Select which AI models you want to host on your OpenModal Router.[/info]\n")
     
-    existing_models = "gemma-4"
-    if os.path.exists(".env"):
-        existing_models = dotenv.get_key(".env", "INSTALLED_MODELS") or "gemma-4"
-        
+    env_dict = dotenv.dotenv_values(".env")
+    existing_models = env_dict.get("INSTALLED_MODELS", "gemma-4")
     installed_list = existing_models.split(",")
     
     model_choices = [
@@ -113,7 +111,7 @@ def get_installed_models():
 
     while True:
         selected = questionary.checkbox(
-            "Use Spacebar to select, and Enter to confirm:",
+            "Press Spacebar to toggle selection (● = Selected, ○ = Unselected). Press Enter to confirm:",
             choices=[questionary.Choice(c["name"], value=c["value"], checked=c.get("checked", False)) for c in model_choices],
             style=questionary.Style([('qmark', 'fg:#ff0000 bold'), ('question', 'bold'), ('selected', 'fg:#ff0000 bold')])
         ).ask()
@@ -131,9 +129,8 @@ def get_api_key():
     console.print("[info]An API Key is required to secure your endpoint from unauthorized access.[/info]\n")
     
     # Check if an API key is already configured
-    existing_key = None
-    if os.path.exists(".env"):
-        existing_key = dotenv.get_key(".env", "API_KEY")
+    env_dict = dotenv.dotenv_values(".env")
+    existing_key = env_dict.get("API_KEY")
         
     if existing_key:
         masked_key = existing_key[:4] + "*" * 8 + existing_key[-4:]
