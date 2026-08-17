@@ -85,6 +85,50 @@ def generate_key(length=16):
     alphabet = string.ascii_letters + string.digits
     return "ZN_" + "".join(secrets.choice(alphabet) for i in range(length - 3))
 
+def get_installed_models():
+    import dotenv
+    console.print("\n[bold white]▶ MODEL SELECTION[/bold white]")
+    console.print("[info]Select which AI models you want to host on your OpenModal Router.[/info]")
+    
+    existing_models = "gemma-4"
+    if os.path.exists(".env"):
+        existing_models = dotenv.get_key(".env", "INSTALLED_MODELS") or "gemma-4"
+        
+    models_map = {
+        "1": "gemma-4",
+        "2": "deepseek-r1",
+        "3": "llama-3.1",
+        "4": "qwen-3",
+        "5": "phi-4"
+    }
+    
+    console.print("  1. Gemma 4 E4B (L4 GPU)")
+    console.print("  2. DeepSeek R1 Distill 14B (L4 GPU)")
+    console.print("  3. Llama 3.1 8B (T4 GPU)")
+    console.print("  4. Qwen 3 8B (T4 GPU)")
+    console.print("  5. Phi 4 Mini (T4 GPU)")
+    console.print(f"\n[dim]Currently installed: {existing_models}[/dim]")
+    
+    # Calculate default selection based on existing models
+    reverse_map = {v: k for k, v in models_map.items()}
+    default_choices = [reverse_map[m] for m in existing_models.split(",") if m in reverse_map]
+    default_choice_str = ",".join(default_choices) if default_choices else "1"
+    
+    while True:
+        choices = Prompt.ask("\n[bold red]➔ Enter model numbers to install (comma-separated, e.g., 1,3,5)[/bold red]", default=default_choice_str)
+        selected = []
+        for choice in choices.split(","):
+            choice = choice.strip()
+            if choice in models_map:
+                selected.append(models_map[choice])
+        
+        if not selected:
+            console.print("[warning]⚠ You must select at least one model.[/warning]")
+        else:
+            selected_str = ",".join(selected)
+            console.print(f"[success]✔ Selected: {selected_str}[/success]")
+            return selected_str
+
 def get_api_key():
     import dotenv
     console.print("\n[bold white]▶ SECURITY CONFIGURATION[/bold white]")
@@ -117,16 +161,16 @@ def get_api_key():
             else:
                 return key
 
-def setup_modal_secret(api_key):
+def setup_modal_secret(api_key, installed_models):
     console.print("\n[bold white]▶ MODAL VAULT INJECTION[/bold white]")
-    console.print("[info]Injecting API key into remote Modal Secrets...[/info]")
+    console.print("[info]Injecting secrets into remote Modal Vault...[/info]")
     try:
         env_vars = os.environ.copy()
         env_vars["PYTHONIOENCODING"] = "utf-8"
         
-        # Run the modal cli command to create/overwrite a secret
+        # We pass both API_KEY and INSTALLED_MODELS to Modal
         result = subprocess.run(
-            ["modal", "secret", "create", "openmodal-api-key", f"API_KEY={api_key}", "--force"],
+            ["modal", "secret", "create", "openmodal-api-key", f"API_KEY={api_key}", f"INSTALLED_MODELS={installed_models}", "--force"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -142,7 +186,7 @@ def setup_modal_secret(api_key):
         console.print(f"[danger]Error running Modal CLI: {e}[/danger]")
         sys.exit(1)
 
-def deploy_to_modal():
+def deploy_to_modal(installed_models):
     console.print("\n[bold white]▶ REMOTE DEPLOYMENT[/bold white]")
     console.print("[info]Initiating deployment to Modal infrastructure...[/info]")
     console.print("[italic dim](This may take a few minutes during initial cold builds)[/italic dim]\n")
@@ -151,6 +195,7 @@ def deploy_to_modal():
     
     env_vars = os.environ.copy()
     env_vars["PYTHONIOENCODING"] = "utf-8"
+    env_vars["INSTALLED_MODELS"] = installed_models
     
     process = subprocess.Popen(
         ["modal", "deploy", "deploy.py"],
@@ -207,8 +252,9 @@ def main():
     ensure_modal_auth()
     
     api_key = get_api_key()
-    setup_modal_secret(api_key)
-    base_url = deploy_to_modal()
+    installed_models = get_installed_models()
+    setup_modal_secret(api_key, installed_models)
+    base_url = deploy_to_modal(installed_models)
     
     if base_url:
         console.print("\n")
@@ -218,13 +264,15 @@ def main():
         success_text.append("BASE URL: ", style="bold red")
         success_text.append(f"{base_url}/v1\n", style="bold white")
         success_text.append("API KEY:  ", style="bold red")
-        success_text.append(f"{api_key}\n\n", style="bold white")
+        success_text.append(f"{api_key}\n", style="bold white")
+        success_text.append("MODELS:   ", style="bold red")
+        success_text.append(f"{installed_models}\n\n", style="bold white")
         
         success_text.append("CURL TEST COMMAND:\n", style="bold yellow")
         success_text.append(f"""curl -X POST "{base_url}/v1/chat/completions" \\
   -H "Authorization: Bearer {api_key}" \\
   -H "Content-Type: application/json" \\
-  -d '{{"model": "gemma-4", "messages": [{{"role": "user", "content": "Hi, tell me a joke."}}]}}'
+  -d '{{"model": "{installed_models.split(',')[0]}", "messages": [{{"role": "user", "content": "Hi, tell me a joke."}}]}}'
 """, style="italic dim white")
 
         console.print(Panel(success_text, border_style="red", title="[bold white]✔ DEPLOYMENT SUCCESSFUL[/bold white]", padding=(1, 2)))
@@ -234,6 +282,8 @@ def main():
             with open(".env", "w") as f:
                 f.write(f"OPENAI_BASE_URL={base_url}/v1\n")
                 f.write(f"OPENAI_API_KEY={api_key}\n")
+                f.write(f"API_KEY={api_key}\n")
+                f.write(f"INSTALLED_MODELS={installed_models}\n")
             console.print("[italic dim white]Credentials saved to .env for zero-config chat.[/italic dim white]\n")
         except Exception as e:
             console.print(f"[warning]Could not save .env file: {e}[/warning]")
